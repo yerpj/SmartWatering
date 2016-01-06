@@ -19,4 +19,20 @@ Currently, the program does some kind of trivial task:
 - 5) Turn the pump ON, wait until the desired quantity of water has been watered AND check that timeout did not happen
 - 6) Turn the pump OFF, goto 2)
 
+Modifying the Arduino 
+---------------------
+The water pump will not work correctly if you power it from the "5V" pin of the Arduino Nano. The reason is, it is not 5V, but ~4.2V because of the reverse current protection diode.
+Instead, it is far better to solder a real 5V wire direct on the VUSB (see picture).
+
+![Alt text](https://github.com/yerpj/SmartWatering/blob/master/IMG_0281.JPG "A real 5V wire is used to power the water pump")
+
+Connecting everything 
+---------------------
+No info yet
+
+The Code 
+--------
+
+The nameless chapter 
+--------------------
 I will upload some pictures as well as a more detailed README soon.
