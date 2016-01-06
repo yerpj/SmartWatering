@@ -3,12 +3,13 @@ Arduino based project in charge of taking care of my green plants
 
 This readme is subject to evolve.
 
-Basically, I am using 3 components and a few meters of water hose
-![Alt text](https://github.com/yerpj/SmartWatering/blob/master/IMG_0279.JPG "Essential components")
+Basically, I am using 5 parts and a few meters of water hose
+![Alt text](https://github.com/yerpj/SmartWatering/blob/master/IMG_0279.JPG "Essential parts")
 - [A I2C soil moisture sensor] (https://www.tindie.com/products/miceuz/i2c-soil-moisture-sensor/)
 - [An Arduino nano]	(https://www.arduino.cc/en/Main/ArduinoBoardNano)
 - [A water flow meter] (http://www.dx.com/p/hs01-high-precision-flow-meter-white-black-226937#.Vo2cj1JN8Vc)
 - [An USB submersible water pump] (http://www.dx.com/p/at-usb-1020-usb-powered-pet-fish-tank-submersible-pump-black-dc-3-5-9v-337664#.Vo2ckFJN8Vc)
+- An USB power switch (Mosfet, Relay, Integrated switch IC, ...)
 
 Currently, the program does some kind of trivial task:
 - 1) Initialize the hardware
