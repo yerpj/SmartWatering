@@ -31,12 +31,12 @@ Connecting everything
 Actually the wiring is straightforward. 
 On the Arduino nano, there is 2 external interrupts, on pin D2 and D3. Here, I used D2 to count the pulses coming out the water flow meter
 You will also notice the 2 10k pull-up resistors on the I2C bus. They are mandatory, do not forget them.
-![Alt text](https://github.com/yerpj/SmartWatering/blob/master/wiring.png "wiring")
+![Alt text](https://github.com/yerpj/SmartWatering/blob/master/wiring.jpg "wiring")
 
 When the electric wiring is done, you can now assemble the parts along the water hose (5mm think, respective to the diameter of the Water pump and flow sensor).
 (Note, you can pick up some hose on Amazon like [this one](http://www.amazon.co.uk/PVC-Plastic-Pipe-Aquarium-Quality/dp/B00QKQ92ZW)) .
 
-![Alt text](https://github.com/yerpj/SmartWatering/blob/master/Hose.png "Hose and Moisture sensor")
+![Alt text](https://github.com/yerpj/SmartWatering/blob/master/Hose.jpg "Hose and Moisture sensor")
 
 The Code 
 --------
