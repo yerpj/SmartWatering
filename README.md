@@ -36,7 +36,7 @@ You will also notice the 2 10k pull-up resistors on the I2C bus. They are mandat
 When the electric wiring is done, you can now assemble the parts along the water hose (5mm think, respective to the diameter of the Water pump and flow sensor).
 (Note, you can pick up some hose on Amazon like [this one](http://www.amazon.co.uk/PVC-Plastic-Pipe-Aquarium-Quality/dp/B00QKQ92ZW)) .
 
-![Alt text](https://github.com/yerpj/SmartWatering/blob/master/hose.png "Hose and Moisture sensor")
+![Alt text](https://github.com/yerpj/SmartWatering/blob/master/Hose.png "Hose and Moisture sensor")
 
 The Code 
 --------
