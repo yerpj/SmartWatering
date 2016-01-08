@@ -71,14 +71,14 @@ As for the synchronous mechanism, the answers are JSON-formatted:
 The Arduino proceed to a moisture measurement every WATERING_TIMEOUT [ms], sends the measured value to the serial port, then proceed to a watering, if needed.
 
 You can see in the following picture what the CLI looks like:
-![Alt text](https://github.com/yerpj/SmartWatering/blob/master/CLI.jpg "Command Line Interface")
+![Alt text](https://github.com/yerpj/SmartWatering/blob/master/CLI.JPG "Command Line Interface")
 
 The Prototype
 -------------
 
 In order to prevent any damage or flood, I made a prototype around a jug of water. The USB water pump rests at the water bottom. The end of the hose directly flows into the jug.
 As the moisture sensor is not put into water, it will sense something like a "dry earth", and therefore the system will trigger a watering cycle every WATERING_TIMEOUT [ms]. 
-![Alt text](https://github.com/yerpj/SmartWatering/blob/master/Prototype.jpg "Prototype")
+![Alt text](https://github.com/yerpj/SmartWatering/blob/master/Prototype.JPG "Prototype")
 
 
 The Code 
