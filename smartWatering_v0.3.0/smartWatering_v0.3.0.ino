@@ -1,71 +1,3 @@
-# SmartWatering [0.2.2]
-Arduino based project in charge of taking care of my green plants 
-
-This readme is subject to evolve.
-
-Basically, I am using 5 parts and a few meters of water hose
-![Alt text](https://github.com/yerpj/SmartWatering/blob/master/IMG_0279.JPG "Essential parts")
-- [A I2C soil moisture sensor] (https://www.tindie.com/products/miceuz/i2c-soil-moisture-sensor/)
-- [An Arduino nano]	(https://www.arduino.cc/en/Main/ArduinoBoardNano)
-- [A water flow meter] (http://www.dx.com/p/hs01-high-precision-flow-meter-white-black-226937#.Vo2cj1JN8Vc)
-- [An USB submersible water pump] (http://www.dx.com/p/at-usb-1020-usb-powered-pet-fish-tank-submersible-pump-black-dc-3-5-9v-337664#.Vo2ckFJN8Vc)
-- An USB power switch (Mosfet, Relay, Integrated switch IC, ...)
-
-Currently, the program does some kind of trivial task:
-- 1) Initialize the hardware
-- 2) Wait some time 
-- 3) Proceed to a moisture measurement
-- 4) if moisture above threshold, goto 2), else goto 5)
-- 5) Turn the pump ON, wait until the desired quantity of water has been watered AND check that timeout did not happen
-- 6) Turn the pump OFF, goto 2)
-
-Modifying the Arduino 
----------------------
-The water pump will not work correctly if you power it from the "5V" pin of the Arduino Nano. The reason is, it is not 5V, but ~4.2V because of the reverse current protection diode.
-Instead, it is far better to solder a real 5V wire direct on the VUSB (see picture).
-
-![Alt text](https://github.com/yerpj/SmartWatering/blob/master/IMG_0281.JPG "A real 5V wire is used to power the water pump")
-
-Connecting everything 
----------------------
-Actually the wiring is straightforward. 
-On the Arduino nano, there is 2 external interrupts, on pin D2 and D3. Here, I used D2 to count the pulses coming out the water flow meter
-You will also notice the 2 10k pull-up resistors on the I2C bus. They are mandatory, do not forget them.
-![Alt text](https://github.com/yerpj/SmartWatering/blob/master/wiring.jpg "wiring")
-
-When the electric wiring is done, you can now assemble the parts along the water hose (5mm think, respective to the diameter of the Water pump and flow sensor).
-(Note, you can pick up some hose on Amazon like [this one](http://www.amazon.co.uk/PVC-Plastic-Pipe-Aquarium-Quality/dp/B00QKQ92ZW)) .
-
-![Alt text](https://github.com/yerpj/SmartWatering/blob/master/Hose.jpg "Hose and Moisture sensor")
-
-Command Line Interface (CLI)
-----------------------------
-
-Since revision 0.3.0, the CLI is implemented. It allows to interract with the system through the USB Serial port.
-
-The CLI is based on two main mechanisms:
-- synchronous request-response
-- asynchronous notification
-
-Responses coming from the Arduino are JSON objects passed as strings.
-
-Synchronous request-response CMD list:
-
-The requests are of the form "sw"+<CMD>.
-- "sw info"
-- "sw temperature"
-- "sw moisture"
-
-Asynchronous notification:
-As for the synchronous mechanism, the answers are JSON-formatted:
-{"moisture":"123"}
-{"pumpState":true/false}
-
-
-
-The Code 
---------
-```
 /* Smart Watering project
  * JRY 2016*/
 #define REVISION "0.3.0"
@@ -89,6 +21,8 @@ The Code
  */
 #include <Wire.h>
 
+#define DEBUG(x) Serial.println(x)
+
 #define MOISTURE_SENSOR_I2C_ADDR 0x20
 #define CAPACITIVE_MEAS_AVERAGING 10
 #define CAPACITIVE_THRESHOLD 400
@@ -104,12 +38,12 @@ The Code
 #define CLI_CMD2 "moisture"
 #define CLI_CMD3 "temp"
 
-/************** TMP ******************/
 #define RXBUFLEN 200
 char *RXStrTerminatorOffset=0;
 char RXStr[RXBUFLEN];
 char RXPtr=0;
-/*************************************/
+
+
 
 volatile int LSensorCount=0;
 volatile bool IsWatering=false;
@@ -162,6 +96,7 @@ bool isHungry(void){
 void LSensorIRQ(void)
 {
   LSensorCount++;
+  DEBUG("LSENSOR IRQ");
   digitalWrite(LED,!digitalRead(LED));
 }
 
@@ -178,6 +113,7 @@ void Feed(void)
     timeout+=200;
   }
   digitalWrite(PUMP,1);//turn pump OFF 
+  DEBUG(LSensorCount);
   Serial.print("{\"pumpState\":false}\n");
   if(timeout>=WATERING_TIMEOUT)
   Serial.print("{\"systemError\":\"pump problem\"}\n");
@@ -212,6 +148,7 @@ void setup() {
   pinMode(LED, OUTPUT);
   pinMode(PUMP, OUTPUT);
   digitalWrite(PUMP, 1);
+  pinMode(LSENSOR,INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(LSENSOR), LSensorIRQ, FALLING); 
 }
 
@@ -255,8 +192,3 @@ void loop() {
     }
   }
 }
-```
-
-The nameless chapter 
---------------------
-I will upload some pictures as well as a more detailed README soon.
