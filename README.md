@@ -52,11 +52,8 @@ Responses coming from the Arduino are JSON objects passed as strings.
 Synchronous request-response CMD list:
 
 The requests are of the form "sw"+<CMD>.
-
 - "sw info"
-
 - "sw temperature"
-
 - "sw moisture"
 
 
