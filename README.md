@@ -54,7 +54,9 @@ Synchronous request-response CMD list:
 The requests are of the form "sw"+<CMD>.
 
 - "sw info"
+
 - "sw temperature"
+
 - "sw moisture"
 
 
