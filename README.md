@@ -1,4 +1,4 @@
-# SmartWatering [0.2.2]
+# SmartWatering 
 Arduino based project in charge of taking care of my green plants 
 
 This readme is subject to evolve.
@@ -52,11 +52,16 @@ Responses coming from the Arduino are JSON objects passed as strings.
 Synchronous request-response CMD list:
 
 The requests are of the form "sw"+<CMD>.
+
 - "sw info"
+
 - "sw temperature"
+
 - "sw moisture"
 
+
 Asynchronous notification:
+
 As for the synchronous mechanism, the answers are JSON-formatted:
 {"moisture":"123"}
 {"pumpState":true/false}
