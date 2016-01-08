@@ -21,7 +21,13 @@
  */
 #include <Wire.h>
 
-#define DEBUG(x) Serial.println(x)
+//#define DEBUG_MODE
+
+#ifdef DEBUG_MODE
+  #define DEBUG(x) Serial.println(x)
+#else
+  #define DEBUG(x) 
+#endif
 
 #define MOISTURE_SENSOR_I2C_ADDR 0x20
 #define CAPACITIVE_MEAS_AVERAGING 10

@@ -60,6 +60,9 @@ Asynchronous notification:
 As for the synchronous mechanism, the answers are JSON-formatted:
 {"moisture":"123"}
 {"pumpState":true/false}
+{"systemError":"problem detail"}
+
+The Arduino proceed to a moisture measurement every WATERING_TIMEOUT [ms], sends the measured value to the serial port, then proceed to a watering, if needed.
 
 
 
@@ -89,6 +92,14 @@ The Code
  */
 #include <Wire.h>
 
+//#define DEBUG_MODE
+
+#ifdef DEBUG_MODE
+  #define DEBUG(x) Serial.println(x)
+#else
+  #define DEBUG(x) 
+#endif
+
 #define MOISTURE_SENSOR_I2C_ADDR 0x20
 #define CAPACITIVE_MEAS_AVERAGING 10
 #define CAPACITIVE_THRESHOLD 400
@@ -104,12 +115,12 @@ The Code
 #define CLI_CMD2 "moisture"
 #define CLI_CMD3 "temp"
 
-/************** TMP ******************/
 #define RXBUFLEN 200
 char *RXStrTerminatorOffset=0;
 char RXStr[RXBUFLEN];
 char RXPtr=0;
-/*************************************/
+
+
 
 volatile int LSensorCount=0;
 volatile bool IsWatering=false;
@@ -162,6 +173,7 @@ bool isHungry(void){
 void LSensorIRQ(void)
 {
   LSensorCount++;
+  DEBUG("LSENSOR IRQ");
   digitalWrite(LED,!digitalRead(LED));
 }
 
@@ -178,6 +190,7 @@ void Feed(void)
     timeout+=200;
   }
   digitalWrite(PUMP,1);//turn pump OFF 
+  DEBUG(LSensorCount);
   Serial.print("{\"pumpState\":false}\n");
   if(timeout>=WATERING_TIMEOUT)
   Serial.print("{\"systemError\":\"pump problem\"}\n");
@@ -212,6 +225,7 @@ void setup() {
   pinMode(LED, OUTPUT);
   pinMode(PUMP, OUTPUT);
   digitalWrite(PUMP, 1);
+  pinMode(LSENSOR,INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(LSENSOR), LSensorIRQ, FALLING); 
 }
 
@@ -256,7 +270,3 @@ void loop() {
   }
 }
 ```
-
-The nameless chapter 
---------------------
-I will upload some pictures as well as a more detailed README soon.
