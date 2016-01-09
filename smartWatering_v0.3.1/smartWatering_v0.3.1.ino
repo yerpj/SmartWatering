@@ -18,7 +18,7 @@
  *    0.2.1 Pump driver implemented, LiquidSensor interrupt implemented, feed() function in progress
  *    0.2.2 Feed function implemented, with timeout. Moisture threshold, Watering quantity and Watering timeout are #defined
  *    0.3.0 Command line interface (CLI) implemented. JSON based messages. available cmds: "sw info", "sw moisture", "sw temperature"
- *    0.3.1 Added a timestamp in the response of the "sw info" request
+ *    0.3.1 Added a timestamp in the response of the "sw info" request as well as on pumpState notification
  */
 #include <Wire.h>
 
@@ -112,7 +112,8 @@ void Feed(void)
   int timeout=0;
   LSensorCount=0;//clear current value
   digitalWrite(PUMP,0);//turn pump ON
-  Serial.print("{\"pumpState\":true}\n");
+  sprintf(tmp,"{\"pumpState\":\"true\",\"time\":\"%lu\"}\n",millis());
+  Serial.print(tmp);
   while(LSensorCount<WATERING_BASE_QUANTITY && timeout<WATERING_TIMEOUT)
   {
     delay(200);
@@ -120,7 +121,8 @@ void Feed(void)
   }
   digitalWrite(PUMP,1);//turn pump OFF 
   DEBUG(LSensorCount);
-  Serial.print("{\"pumpState\":false}\n");
+  sprintf(tmp,"{\"pumpState\":\"false\",\"time\":\"%lu\"}\n",millis());
+  Serial.print(tmp);
   if(timeout>=WATERING_TIMEOUT)
   Serial.print("{\"systemError\":\"pump problem\"}\n");
 }
@@ -129,7 +131,7 @@ void CLI(char * cmd){
   if(cmd[0]=='s' && cmd[1]=='w' && cmd[2]==' ')
   {
     if(strstr(cmd,CLI_CMD1)){
-      sprintf(tmp,"{\"Project\":{\"revision\":\"%s\",\"author\":\"%s\"},\"system\":{\"time\":\"%i\"}}\n",REVISION,AUTHOR,millis());
+      sprintf(tmp,"{\"Project\":{\"revision\":\"%s\",\"author\":\"%s\"},\"system\":{\"time\":\"%lu\"}}\n",REVISION,AUTHOR,millis());
       Serial.print(tmp);
     }
     else if(strstr(cmd,CLI_CMD2)){
