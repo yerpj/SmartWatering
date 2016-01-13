@@ -114,7 +114,8 @@ void Feed(void)
   int timeout=0;
   LSensorCount=0;//clear current value
   digitalWrite(PUMP,0);//turn pump ON
-  sprintf(tmp,"{\"pumpState\":\"true\",\"time\":\"%lu\"}\n",millis());
+  delay(20);//mandatory in order to avoid the "turn pump ONOFF" voltage spike to corrupt serial data
+  sprintf(tmp,"{\"device\":\"sw\",\"type\":\"data\",\"dataPoint\":\"pump\",\"dataValue\":\"ON\"}\n",millis());
   Serial.print(tmp);
   while(LSensorCount<WATERING_BASE_QUANTITY && timeout<WATERING_TIMEOUT)
   {
@@ -123,29 +124,33 @@ void Feed(void)
   }
   digitalWrite(PUMP,1);//turn pump OFF 
   DEBUG(LSensorCount);
-  sprintf(tmp,"{\"pumpState\":\"false\",\"time\":\"%lu\"}\n",millis());
+  delay(20);//mandatory in order to avoid the "turn pump ONOFF" voltage spike to corrupt serial data
+  sprintf(tmp,"{\"device\":\"sw\",\"type\":\"data\",\"dataPoint\":\"pump\",\"dataValue\":\"OFF\"}\n",millis());
   Serial.print(tmp);
   if(timeout>=WATERING_TIMEOUT)
-  Serial.print("{\"systemError\":\"pump problem\"}\n");
+  {
+    delay(20);//mandatory in order to avoid the "turn pump ONOFF" voltage spike to corrupt serial data
+    Serial.print("{\"device\":\"sw\",\"type\":\"data\",\"dataPoint\":\"systemError\",\"dataValue\":\"Pump problem\"}\n");
+  }
 }
 
 void CLI(char * cmd){
   if(cmd[0]=='s' && cmd[1]=='w' && cmd[2]==' ')
   {
     if(strstr(cmd,CLI_CMD1)){
-      sprintf(tmp,"{\"Project\":{\"revision\":\"%s\",\"author\":\"%s\"},\"system\":{\"time\":\"%lu\"}}\n",REVISION,AUTHOR,millis());
+      sprintf(tmp,"{\"device\":\"sw\",\"type\":\"data\",\"dataPoint\":\"info\",\"dataValue\":{\"Project\":{\"revision\":\"%s\",\"author\":\"%s\"},\"system\":{\"time\":\"%lu\"}}}\n",REVISION,AUTHOR,millis());
       Serial.print(tmp);
     }
     else if(strstr(cmd,CLI_CMD2)){
-      sprintf(tmp,"{\"moisture\":\"%i\"}\n",MoistureValue());
+      sprintf(tmp,"{\"device\":\"sw\",\"type\":\"data\",\"dataPoint\":\"moisture\",\"dataValue\":\"%i\"}\n",MoistureValue());
       Serial.print(tmp);
     }
     else if(strstr(cmd,CLI_CMD3)){
-      sprintf(tmp,"{\"temperature\":\"%i\"}\n",getTemp());
+      sprintf(tmp,"{\"device\":\"sw\",\"type\":\"data\",\"dataPoint\":\"temperature\",\"dataValue\":\"%i\"}\n",getTemp());
       Serial.print(tmp);
     }
     else if(strstr(cmd,CLI_CMD4)){
-      sprintf(tmp,"{\"moisture\":\"%i\"}\n",MoistureValue());
+      sprintf(tmp,"{\"device\":\"sw\",\"type\":\"data\",\"dataPoint\":\"moisture\",\"dataValue\":\"%i\"}\n",MoistureValue());
       Serial.print(tmp);
       Feed();
       MoistureDelayAccu=0;
@@ -200,7 +205,7 @@ void loop() {
     {
       MoistureDelayAccu=0;
       CapaValue=isHungry();
-      sprintf(tmp,"{\"moisture\":\"%i\"}\n",MoistureValue());
+      sprintf(tmp,"{\"device\":\"sw\",\"type\":\"data\",\"dataPoint\":\"moisture\",\"dataValue\":\"%i\"}\n",MoistureValue());
       Serial.print(tmp);
       if(CapaValue){
         Feed();
