@@ -20,7 +20,7 @@
  *    0.3.0 Command line interface (CLI) implemented. JSON based messages. available cmds: "sw info", "sw moisture", "sw temperature"
  *    0.3.1 Added a timestamp in the response of the "sw info" request as well as on pumpState notification
  *    0.3.2 Added a "start" command, that forces a water-cycle
- *    0.4.0 Implementation of the Luminosity retrieving function
+ *    0.4.0 Implementation of the Luminosity driver & request
  */
 #include <Wire.h>
 
@@ -47,7 +47,7 @@
 #define CLI_CMD2 "moisture" //require the moisture value
 #define CLI_CMD3 "temp"     //require the temperature value
 #define CLI_CMD4 "start"    //start a watering cycle
-#define CLI_CMD5 "lumi"     //trig a new measurement of the luminosity. Result is delayed by ~2 seconds.
+#define CLI_CMD5 "lumi"     //require the luminosity value
 
 #define RXBUFLEN 200
 char *RXStrTerminatorOffset=0;
@@ -59,7 +59,6 @@ volatile int LSensorCount=0;
 volatile bool IsWatering=false;
 volatile int LastMoistureMeasured=0;
 volatile unsigned long int MoistureDelayAccu=0;
-volatile unsigned long int LumiMeasurementStartTime=0;
 char tmp[100];
 
 int getCapa(void){

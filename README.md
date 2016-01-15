@@ -42,6 +42,7 @@ Command Line Interface (CLI)
 ----------------------------
 
 Since revision 0.3.0, the CLI is implemented. It allows to interract with the system through the USB Serial port.
+Since revision 0.4.0, the luminosity sensor is supported
 
 The CLI is based on two main mechanisms:
 - synchronous request-response
@@ -56,6 +57,7 @@ The requests are of the form "sw"+<CMD>.
 - "sw temperature"
 - "sw moisture"
 - "sw start"
+- "sw lumi"
 
 
 Asynchronous notification:
@@ -87,7 +89,7 @@ The Code
 ```
 /* Smart Watering project
  * JRY 2016*/
-#define REVISION "0.3.2"
+#define REVISION "0.4.0"
 #define AUTHOR "JRY"
  /* Board: Arduino Nano
  * Pins:
@@ -107,6 +109,7 @@ The Code
  *    0.3.0 Command line interface (CLI) implemented. JSON based messages. available cmds: "sw info", "sw moisture", "sw temperature"
  *    0.3.1 Added a timestamp in the response of the "sw info" request as well as on pumpState notification
  *    0.3.2 Added a "start" command, that forces a water-cycle
+ *    0.4.0 Implementation of the Luminosity driver & request
  */
 #include <Wire.h>
 
@@ -133,6 +136,7 @@ The Code
 #define CLI_CMD2 "moisture" //require the moisture value
 #define CLI_CMD3 "temp"     //require the temperature value
 #define CLI_CMD4 "start"    //start a watering cycle
+#define CLI_CMD5 "lumi"     //require the luminosity value
 
 #define RXBUFLEN 200
 char *RXStrTerminatorOffset=0;
@@ -144,7 +148,7 @@ volatile int LSensorCount=0;
 volatile bool IsWatering=false;
 volatile int LastMoistureMeasured=0;
 volatile unsigned long int MoistureDelayAccu=0;
- char tmp[100];
+char tmp[100];
 
 int getCapa(void){
   Wire.beginTransmission(MOISTURE_SENSOR_I2C_ADDR); // give address
@@ -168,6 +172,22 @@ unsigned int getTemp(void){
   while (!Wire.available());
   unsigned char b=Wire.read(); // receive a byte as character
   return (a*256+b)/10;
+}
+
+unsigned int getLumi(void){
+  Wire.beginTransmission(MOISTURE_SENSOR_I2C_ADDR); // give address
+  Wire.write(0x03);            // sends instruction byte
+  Wire.endTransmission();     // stop transmitting
+  delay(200);
+  Wire.beginTransmission(MOISTURE_SENSOR_I2C_ADDR); // give address
+  Wire.write(0x04);            // retrieve the last Luminosity value 
+  Wire.endTransmission();     // stop transmitting
+  Wire.requestFrom(MOISTURE_SENSOR_I2C_ADDR, 2);
+  while (!Wire.available());
+  unsigned char a=Wire.read(); // receive a byte as character
+  while (!Wire.available());
+  unsigned char b=Wire.read(); // receive a byte as character
+  return ((a<<8)+b);
 }
 
 int MoistureValue(void){
@@ -201,7 +221,8 @@ void Feed(void)
   int timeout=0;
   LSensorCount=0;//clear current value
   digitalWrite(PUMP,0);//turn pump ON
-  sprintf(tmp,"{\"pumpState\":\"true\",\"time\":\"%lu\"}\n",millis());
+  delay(20);//mandatory in order to avoid the "turn pump ONOFF" voltage spike to corrupt serial data
+  sprintf(tmp,"{\"device\":\"sw\",\"type\":\"data\",\"dataPoint\":\"pump\",\"dataValue\":\"ON\"}\n",millis());
   Serial.print(tmp);
   while(LSensorCount<WATERING_BASE_QUANTITY && timeout<WATERING_TIMEOUT)
   {
@@ -210,32 +231,40 @@ void Feed(void)
   }
   digitalWrite(PUMP,1);//turn pump OFF 
   DEBUG(LSensorCount);
-  sprintf(tmp,"{\"pumpState\":\"false\",\"time\":\"%lu\"}\n",millis());
+  delay(20);//mandatory in order to avoid the "turn pump ONOFF" voltage spike to corrupt serial data
+  sprintf(tmp,"{\"device\":\"sw\",\"type\":\"data\",\"dataPoint\":\"pump\",\"dataValue\":\"OFF\"}\n",millis());
   Serial.print(tmp);
   if(timeout>=WATERING_TIMEOUT)
-  Serial.print("{\"systemError\":\"pump problem\"}\n");
+  {
+    delay(20);//mandatory in order to avoid the "turn pump ONOFF" voltage spike to corrupt serial data
+    Serial.print("{\"device\":\"sw\",\"type\":\"data\",\"dataPoint\":\"systemError\",\"dataValue\":\"Pump problem\"}\n");
+  }
 }
 
 void CLI(char * cmd){
   if(cmd[0]=='s' && cmd[1]=='w' && cmd[2]==' ')
   {
     if(strstr(cmd,CLI_CMD1)){
-      sprintf(tmp,"{\"Project\":{\"revision\":\"%s\",\"author\":\"%s\"},\"system\":{\"time\":\"%lu\"}}\n",REVISION,AUTHOR,millis());
+      sprintf(tmp,"{\"device\":\"sw\",\"type\":\"data\",\"dataPoint\":\"info\",\"dataValue\":{\"Project\":{\"revision\":\"%s\",\"author\":\"%s\"},\"system\":{\"time\":\"%lu\"}}}\n",REVISION,AUTHOR,millis());
       Serial.print(tmp);
     }
     else if(strstr(cmd,CLI_CMD2)){
-      sprintf(tmp,"{\"moisture\":\"%i\"}\n",MoistureValue());
+      sprintf(tmp,"{\"device\":\"sw\",\"type\":\"data\",\"dataPoint\":\"moisture\",\"dataValue\":\"%i\"}\n",MoistureValue());
       Serial.print(tmp);
     }
     else if(strstr(cmd,CLI_CMD3)){
-      sprintf(tmp,"{\"temperature\":\"%i\"}\n",getTemp());
+      sprintf(tmp,"{\"device\":\"sw\",\"type\":\"data\",\"dataPoint\":\"temperature\",\"dataValue\":\"%i\"}\n",getTemp());
       Serial.print(tmp);
     }
     else if(strstr(cmd,CLI_CMD4)){
-      sprintf(tmp,"{\"moisture\":\"%i\"}\n",MoistureValue());
+      sprintf(tmp,"{\"device\":\"sw\",\"type\":\"data\",\"dataPoint\":\"moisture\",\"dataValue\":\"%i\"}\n",MoistureValue());
       Serial.print(tmp);
       Feed();
       MoistureDelayAccu=0;
+    }
+    else if(strstr(cmd,CLI_CMD5)){
+      sprintf(tmp,"{\"device\":\"sw\",\"type\":\"data\",\"dataPoint\":\"luminosity\",\"dataValue\":\"%d\"}\n",getLumi());
+      Serial.print(tmp);
     }
     else
       Serial.println("unknown parameter");
@@ -283,16 +312,17 @@ void loop() {
   else{
     delay(MAINLOOP_BASE_DELAY_MS);
     MoistureDelayAccu+=MAINLOOP_BASE_DELAY_MS;
+    
     if(MoistureDelayAccu>=MOISTURE_CHECK_DELAY_MS)
     {
       MoistureDelayAccu=0;
       CapaValue=isHungry();
-      sprintf(tmp,"{\"moisture\":\"%i\"}\n",MoistureValue());
+      sprintf(tmp,"{\"device\":\"sw\",\"type\":\"data\",\"dataPoint\":\"moisture\",\"dataValue\":\"%i\"}\n",MoistureValue());
       Serial.print(tmp);
       if(CapaValue){
         Feed();
       }
-    }
+    }    
   }
 }
 ```
