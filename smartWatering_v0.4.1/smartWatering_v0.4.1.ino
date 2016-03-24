@@ -1,6 +1,6 @@
 /* Smart Watering project
  * JRY 2016*/
-#define REVISION "0.4.0"
+#define REVISION "0.4.1"
 #define AUTHOR "JRY"
  /* Board: Arduino Nano
  * Pins:
@@ -8,6 +8,8 @@
  *    A5  -> SCL
  *    D2  -> Water counter interrupt
  *    D4  -> Water pump control
+ *    D12 -> UART TX to ESP8266
+ *    D11 -> UART RX from ESP8266
  *    
  *    
  *    History:
@@ -21,8 +23,10 @@
  *    0.3.1 Added a timestamp in the response of the "sw info" request as well as on pumpState notification
  *    0.3.2 Added a "start" command, that forces a water-cycle
  *    0.4.0 Implementation of the Luminosity driver & request
+ *    0.4.1 In progress: software serial to communicate with the ESP8266
  */
 #include <Wire.h>
+#include <SoftwareSerial.h>
 
 //#define DEBUG_MODE
 
