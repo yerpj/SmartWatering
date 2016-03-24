@@ -64,6 +64,8 @@ volatile bool IsWatering=false;
 volatile int LastMoistureMeasured=0;
 volatile unsigned long int MoistureDelayAccu=0;
 char tmp[100];
+SoftwareSerial ESPserial(11, 12); // RX, TX
+
 
 int getCapa(void){
   Wire.beginTransmission(MOISTURE_SENSOR_I2C_ADDR); // give address
@@ -197,6 +199,9 @@ void setup() {
   digitalWrite(PUMP, 1);
   pinMode(LSENSOR,INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(LSENSOR), LSensorIRQ, FALLING); 
+
+  ESPserial.begin(115200);
+  ESPserial.println("XivelyUpdate(82)\n");
 }
 
 void loop() {  
