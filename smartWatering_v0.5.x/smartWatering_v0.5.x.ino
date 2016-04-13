@@ -40,9 +40,9 @@
 #define MOISTURE_SENSOR_I2C_ADDR 0x20
 #define CAPACITIVE_MEAS_AVERAGING 10
 #define CAPACITIVE_THRESHOLD 400
-#define WATERING_BASE_QUANTITY 30
+#define WATERING_BASE_QUANTITY 30https://build.particle.io/build/570e89ea6518b53cdc000109#devices
 #define WATERING_TIMEOUT 5000 //milliseconds
-#define PUMP D2
+#define PUMP A0
 #define LSENSOR D3
 #define MAINLOOP_BASE_DELAY_MS 100
 #define MOISTURE_CHECK_DELAY_MS 30000
@@ -54,7 +54,6 @@
 #define CLI_CMD5 "lumi"     //require the luminosity value
 
 #define RXBUFLEN 200
-//char *RXStrTerminatorOffset=0;
 char RXStr[RXBUFLEN];
 char RXPtr=0;
 
@@ -65,6 +64,13 @@ volatile int LastMoistureMeasured=0;
 volatile unsigned long int MoistureDelayAccu=0;
 char tmp[200];
 
+//cloud sync functions &variables
+int CloudRequest(String req);
+int Capa=0;
+int Temp=0;
+int Moisture=0;
+int Lumi=0;
+
 int getCapa(void){
   Wire.beginTransmission(MOISTURE_SENSOR_I2C_ADDR); // give address
   Wire.write(0x00);            // sends instruction byte
@@ -74,7 +80,8 @@ int getCapa(void){
   char a=Wire.read(); // receive a byte as character
   while (!Wire.available());
   char b=Wire.read(); // receive a byte as character
-  return ((a<<8)+b);
+  Capa=((a<<8)+b);
+  return Capa;
 }
 
 unsigned int getTemp(void){
@@ -86,7 +93,8 @@ unsigned int getTemp(void){
   unsigned char a=Wire.read(); // receive a byte as character
   while (!Wire.available());
   unsigned char b=Wire.read(); // receive a byte as character
-  return (a*256+b)/10;
+  Temp=(a*256+b)/10;
+  return Temp;
 }
 
 unsigned int getLumi(void){
@@ -102,7 +110,8 @@ unsigned int getLumi(void){
   unsigned char a=Wire.read(); // receive a byte as character
   while (!Wire.available());
   unsigned char b=Wire.read(); // receive a byte as character
-  return ((a<<8)+b);
+  Lumi=((a<<8)+b);
+  return Lumi;
 }
 
 int MoistureValue(void){
@@ -114,7 +123,8 @@ int MoistureValue(void){
   }
   acc=acc/CAPACITIVE_MEAS_AVERAGING;
   LastMoistureMeasured=acc;
-  return acc;
+  Moisture=acc;
+  return Moisture;
 }
 
 bool isHungry(void){
@@ -127,12 +137,10 @@ void LSensorIRQ(void)
 {
   LSensorCount++;
   DEBUG("LSENSOR IRQ");
-  //digitalWrite(LED,!digitalRead(LED));
 }
 
 void Feed(void)
 {
-  //int qty=0;
   int timeout=0;
   LSensorCount=0;//clear current value
   digitalWrite(PUMP,0);//turn pump ON
@@ -154,6 +162,21 @@ void Feed(void)
     delay(20);//mandatory in order to avoid the "turn pump ONOFF" voltage spike to corrupt serial data
     Serial.print("{\"device\":\"sw\",\"type\":\"data\",\"dataPoint\":\"systemError\",\"dataValue\":\"Pump problem\"}\r\n");
   }
+}
+
+int CloudRequest(String req)
+{
+    if(req==CLI_CMD4)
+    {
+      sprintf(tmp,"{\"device\":\"sw\",\"type\":\"data\",\"dataPoint\":\"moisture\",\"dataValue\":\"%i\"}\r\n",MoistureValue());
+      Serial.print(tmp);
+      Feed();
+      MoistureDelayAccu=0;
+    }
+    else
+    {
+        Serial.println("unknown Cloud command");
+    }
 }
 
 void CLI(char * cmd){
@@ -189,13 +212,19 @@ void CLI(char * cmd){
 }
 
 void setup() {
-  //moisture sensor init
   Wire.begin();
   Serial.begin(9600);
   pinMode(PUMP, OUTPUT);
   digitalWrite(PUMP, 1);
   pinMode(LSENSOR,INPUT_PULLUP);
   attachInterrupt(LSENSOR, LSensorIRQ, FALLING); 
+  
+  //register cloud functions & variables
+  Particle.function("CloudRequest", CloudRequest);
+  Particle.variable("Capa", Capa);
+  Particle.variable("Temp", Temp);
+  Particle.variable("Lumi", Lumi);
+  Particle.variable("Moisture", Moisture);
 }
 
 void loop() {  
@@ -215,15 +244,6 @@ void loop() {
         RXStr[RXPtr-1]=0;//Invalidate the termination symbol
         RXPtr=0;//Reset the Buffer pointer
     }
-    
-    /*RXStrTerminatorOffset=strstr(RXStr,"\n");
-    if(RXStrTerminatorOffset!=0)
-    {
-      RXStr[RXPtr]=0;//add a NULL 
-      CLI(RXStr);
-      RXStr[RXPtr-1]=0;//Invalidate the termination symbol
-      RXPtr=0;//Reset the Buffer pointer
-    }*/
   }
   else{
     delay(MAINLOOP_BASE_DELAY_MS);

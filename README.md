@@ -103,7 +103,7 @@ The Code
  *    D0  -> SDA
  *    D1  -> SCL
  *    D3  -> Water counter interrupt (has to be 5V tolerant!)
- *    D2  -> Water pump control
+ *    A0  -> Water pump control
  *    
  *    
  *    History:
@@ -138,7 +138,7 @@ The Code
 #define CAPACITIVE_THRESHOLD 400
 #define WATERING_BASE_QUANTITY 30
 #define WATERING_TIMEOUT 5000 //milliseconds
-#define PUMP D2
+#define PUMP A0
 #define LSENSOR D3
 #define MAINLOOP_BASE_DELAY_MS 100
 #define MOISTURE_CHECK_DELAY_MS 30000
