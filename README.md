@@ -81,8 +81,9 @@ The Particle Core proceed to a moisture measurement every WATERING_TIMEOUT [ms],
 You can see in the following picture what the CLI looks like:
 ![Alt text](https://github.com/yerpj/SmartWatering/blob/master/CLI.JPG "Command Line Interface")
 
-Cloud interraction:
--------------------
+
+Web interraction
+----------------
 A specific "CloudRequest" ressource allows a user to interract remotely with the device.
 By POSTing to https://api.particle.io/v1/devices/[DEVICE_ID]/CloudRequest , user can basically interract the same way as for the CLI, with a specific request parameter:
 args={COMMAND}, COMMAND being one of the strings below
