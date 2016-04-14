@@ -99,6 +99,18 @@ In order to prevent any damage or flood, I made a prototype around a jug of wate
 As the moisture sensor is not put into water, it will sense something like a "dry earth", and therefore the system will trigger a watering cycle every WATERING_TIMEOUT [ms]. 
 ![Alt text](https://github.com/yerpj/SmartWatering/blob/master/Prototype.JPG "Prototype")
 
+The First Smart Watering Can
+----------------------------
+
+From code version 1.0.0, every desired feature is implemented. It's now time to enclose every wire into my brand new watering can.
+
+
+![Alt text](https://github.com/yerpj/SmartWatering/blob/master/Integration.JPG "The electronics is sitting in the showerhead")
+
+![Alt text](https://github.com/yerpj/SmartWatering/blob/master/SmartWateringCan.JPG "Final packaging")
+
+![Alt text](https://github.com/yerpj/SmartWatering/blob/master/FinalSetup.JPG "The watering can is destinated to live next to the plant.")
+
 
 The Code 
 --------
