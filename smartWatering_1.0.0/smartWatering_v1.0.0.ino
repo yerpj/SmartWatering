@@ -7,7 +7,7 @@
  *    D0  -> SDA
  *    D1  -> SCL
  *    D3  -> Water counter interrupt (has to be 5V tolerant!)
- *    D2  -> Water pump control
+ *    A0  -> Water pump control
  *    
  *    
  *    History:
