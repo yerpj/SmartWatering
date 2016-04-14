@@ -102,4 +102,4 @@ As the moisture sensor is not put into water, it will sense something like a "dr
 
 The Code 
 --------
-[HERE](https://github.com/yerpj/SmartWatering/blob/master/smartWatering_v1.0.0)
+[HERE](https://github.com/yerpj/SmartWatering/tree/master/smartWatering_1.0.0)
