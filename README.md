@@ -81,8 +81,9 @@ The Particle Core proceed to a moisture measurement every WATERING_TIMEOUT [ms],
 You can see in the following picture what the CLI looks like:
 ![Alt text](https://github.com/yerpj/SmartWatering/blob/master/CLI.JPG "Command Line Interface")
 
-Cloud interraction:
--------------------
+
+Web interraction
+----------------
 A specific "CloudRequest" ressource allows a user to interract remotely with the device.
 By POSTing to https://api.particle.io/v1/devices/[DEVICE_ID]/CloudRequest , user can basically interract the same way as for the CLI, with a specific request parameter:
 args={COMMAND}, COMMAND being one of the strings below
@@ -105,11 +106,11 @@ The First Smart Watering Can
 From code version 1.0.0, every desired feature is implemented. It's now time to enclose every wire into my brand new watering can.
 
 
-![Alt text](https://github.com/yerpj/SmartWatering/blob/master/Integration.JPG "The electronics is sitting in the showerhead")
+![Alt text](https://github.com/yerpj/SmartWatering/blob/master/Integration.jpg "The electronics is sitting in the showerhead")
 
-![Alt text](https://github.com/yerpj/SmartWatering/blob/master/SmartWateringCan.JPG "Final packaging")
+![Alt text](https://github.com/yerpj/SmartWatering/blob/master/SmartWateringCan.jpg "Final packaging")
 
-![Alt text](https://github.com/yerpj/SmartWatering/blob/master/FinalSetup.JPG "The watering can is destinated to live next to the plant.")
+![Alt text](https://github.com/yerpj/SmartWatering/blob/master/FinalSetup.jpg "The watering can is destinated to live next to the plant.")
 
 
 The Code 
