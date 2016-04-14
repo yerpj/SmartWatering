@@ -11,7 +11,7 @@ Basically, I am using 5 parts and a few meters of water hose
 - [An USB submersible water pump] (http://www.dx.com/p/at-usb-1020-usb-powered-pet-fish-tank-submersible-pump-black-dc-3-5-9v-337664#.Vo2ckFJN8Vc)
 - An USB power switch (Mosfet, Relay, Integrated switch IC, ...)
 
-The program (current version is 1.0.0 ) does some kind of trivial task:
+The program (at the time of writing, version is 1.0.0 ) does some kind of trivial task:
 - 1) Initialize the hardware
 - 2) Wait some time 
 - 3) Proceed to a moisture measurement
