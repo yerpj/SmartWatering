@@ -92,8 +92,6 @@ args={COMMAND}, COMMAND being one of the strings below
 - "moisture": 	retrieve the soil moisture
 - "start":		start a watering cycle
 
-
-
 The Prototype
 -------------
 
