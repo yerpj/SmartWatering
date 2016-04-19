@@ -7,7 +7,7 @@
  *    D0  -> SDA
  *    D1  -> SCL
  *    D3  -> Water counter interrupt (has to be 5V tolerant!)
- *    A0  -> Water pump control
+ *    D2  -> Water pump control
  *    
  *    
  *    History:
@@ -53,6 +53,7 @@
 #define CLI_CMD3 "temp"     //require the temperature value
 #define CLI_CMD4 "start"    //start a watering cycle
 #define CLI_CMD5 "lumi"     //require the luminosity value
+#define CLI_CMD6 "LastFeed" //require the minutes elapsed since last feed
 
 #define RXBUFLEN 200
 char RXStr[RXBUFLEN];
@@ -71,6 +72,7 @@ int Capa=0;
 int Temp=0;
 int Moisture=0;
 int Lumi=0;
+int LastFeed=-1;
 
 int getCapa(void){
   Wire.beginTransmission(MOISTURE_SENSOR_I2C_ADDR); // give address
@@ -172,6 +174,7 @@ void Feed(void)
   else
   {
       MoistureDelayAccu=0;
+      LastFeed=millis();
   }
 }
 
@@ -196,6 +199,13 @@ int CloudRequest(String req)
     else if(req==CLI_CMD5)
     {
         return getLumi();
+    }
+    else if(req==CLI_CMD6)
+    {
+        if(LastFeed>-1)
+            return (millis()-LastFeed)/60000;
+        else
+            return -1;
     }
     else
     {
@@ -228,6 +238,10 @@ void CLI(char * cmd){
     else if(strstr(cmd,CLI_CMD5)){
       sprintf(tmp,"{\"device\":\"sw\",\"type\":\"data\",\"dataPoint\":\"luminosity\",\"dataValue\":\"%d\"}\r\n",getLumi());
       Serial.print(tmp);
+    }
+    else if(strstr(cmd,CLI_CMD6)){
+        sprintf(tmp,"{\"device\":\"sw\",\"type\":\"data\",\"dataPoint\":\"lastFeed\",\"dataValue\":\"%d\"}\r\n",(LastFeed>-1)?(millis()-LastFeed)/60000:-1);
+        Serial.print(tmp);
     }
     else
       Serial.println("unknown parameter");

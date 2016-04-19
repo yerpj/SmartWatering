@@ -61,6 +61,7 @@ The requests are of the form "sw"+<CMD>.
 - "sw moisture"
 - "sw start"
 - "sw lumi"
+- "sw lastFeed"
 
 
 Asynchronous notification:
@@ -91,6 +92,7 @@ args={COMMAND}, COMMAND being one of the strings below
 - "lumi" : 		retrieve the ambiant luminosity
 - "moisture": 	retrieve the soil moisture
 - "start":		start a watering cycle
+- "lastFeed":	know when happened the last watering
 
 The Prototype
 -------------
