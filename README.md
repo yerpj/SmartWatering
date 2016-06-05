@@ -94,6 +94,14 @@ args={COMMAND}, COMMAND being one of the strings below
 - "start":		start a watering cycle
 - "lastFeed":	know when happened the last watering
 
+Powershell interaction
+----------------
+This will output the values for moisture. Other arguments are temp and lumi.
+
+```(iwr https://api.particle.io/v1/devices/MYDEVICEID/CloudRequest?access_token=MYACCESSTOKEN -Method POST -Body @{args="moisture"}).Content```
+
+Have a look at a sample script which retrieves all values and outputs them in tableform: https://github.com/jrnker/SmartWatering-PS-retriever/blob/master/GetSensorValues.ps1
+
 The Prototype
 -------------
 
